@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 할일</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 섹션 -->
+        <header class="header">
+            <h1 class="title">오늘의 할일</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-todos">0</span>
+                    <span class="stat-label">전체</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="completed-todos">0</span>
+                    <span class="stat-label">완료</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="completion-rate">0%</span>
+                    <span class="stat-label">완료율</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 메인 섹션 -->
+        <main class="main">
+            <!-- 할일 입력 섹션 -->
+            <section class="input-section">
+                <div class="input-container">
+                    <input 
+                        type="text" 
+                        id="todo-input" 
+                        placeholder="새로운 할일을 입력하세요..."
+                        class="todo-input"
+                    >
+                    <button id="add-btn" class="add-btn" disabled>
+                        <span class="add-icon">+</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 필터 섹션 -->
+            <section class="filter-section">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">전체</button>
+                    <button class="filter-btn" data-filter="active">미완료</button>
+                    <button class="filter-btn" data-filter="completed">완료</button>
+                </div>
+            </section>
+
+            <!-- 할일 목록 섹션 -->
+            <section class="todos-section">
+                <div class="todos-container">
+                    <!-- 할일 항목들이 여기에 동적으로 추가됩니다 -->
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p class="empty-text">아직 할일이 없습니다.<br>새로운 할일을 추가해보세요!</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 푸터 섹션 -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p class="footer-text">오늘도 화이팅! 💪</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 할일 항목 템플릿 (숨김) -->
+    <template id="todo-template">
+        <div class="todo-item">
+            <div class="todo-content">
+                <input type="checkbox" class="todo-checkbox">
+                <span class="todo-text"></span>
+            </div>
+            <button class="delete-btn" title="삭제">
+                <span class="delete-icon">×</span>
+            </button>
+        </div>
+    </template>
+</body>
+</html>
