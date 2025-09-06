@@ -1,14 +1,16 @@
-// Todo App JavaScript - PRD 기능 구현
+// Todo App JavaScript - Supabase 연동
 class TodoApp {
     constructor() {
-        this.todos = this.loadTodos();
+        this.todos = [];
         this.currentFilter = 'all';
+        this.isSupabaseReady = false;
         this.init();
     }
 
     // 초기화
-    init() {
+    async init() {
         this.bindEvents();
+        await this.loadTodos();
         this.render();
         this.updateStats();
     }
@@ -43,46 +45,86 @@ class TodoApp {
     }
 
     // 할일 추가
-    addTodo() {
+    async addTodo() {
         const input = document.getElementById('todo-input');
         const text = input.value.trim();
 
         if (text === '') return;
 
         const todo = {
-            id: Date.now().toString(),
             text: text,
             completed: false,
             createdAt: new Date().toISOString()
         };
 
-        this.todos.unshift(todo);
-        this.saveTodos();
-        this.render();
-        this.updateStats();
+        try {
+            if (this.isSupabaseReady) {
+                const newTodo = await SupabaseService.addTodo(todo);
+                this.todos.unshift(newTodo);
+            } else {
+                // Supabase가 준비되지 않은 경우 로컬 스토리지 사용
+                todo.id = Date.now().toString();
+                this.todos.unshift(todo);
+                this.saveTodos();
+            }
+            
+            this.render();
+            this.updateStats();
 
-        // 입력 필드 초기화
-        input.value = '';
-        document.getElementById('add-btn').disabled = true;
-        input.focus();
+            // 입력 필드 초기화
+            input.value = '';
+            document.getElementById('add-btn').disabled = true;
+            input.focus();
+        } catch (error) {
+            console.error('할일 추가 실패:', error);
+            alert('할일 추가에 실패했습니다. 다시 시도해주세요.');
+        }
     }
 
     // 할일 삭제
-    deleteTodo(id) {
-        this.todos = this.todos.filter(todo => todo.id !== id);
-        this.saveTodos();
-        this.render();
-        this.updateStats();
+    async deleteTodo(id) {
+        try {
+            if (this.isSupabaseReady) {
+                await SupabaseService.deleteTodo(id);
+            }
+            
+            this.todos = this.todos.filter(todo => todo.id !== id);
+            
+            if (!this.isSupabaseReady) {
+                this.saveTodos();
+            }
+            
+            this.render();
+            this.updateStats();
+        } catch (error) {
+            console.error('할일 삭제 실패:', error);
+            alert('할일 삭제에 실패했습니다. 다시 시도해주세요.');
+        }
     }
 
     // 할일 완료 상태 토글
-    toggleTodo(id) {
+    async toggleTodo(id) {
         const todo = this.todos.find(todo => todo.id === id);
         if (todo) {
-            todo.completed = !todo.completed;
-            this.saveTodos();
-            this.render();
-            this.updateStats();
+            const newCompleted = !todo.completed;
+            
+            try {
+                if (this.isSupabaseReady) {
+                    await SupabaseService.updateTodo(id, { completed: newCompleted });
+                }
+                
+                todo.completed = newCompleted;
+                
+                if (!this.isSupabaseReady) {
+                    this.saveTodos();
+                }
+                
+                this.render();
+                this.updateStats();
+            } catch (error) {
+                console.error('할일 상태 변경 실패:', error);
+                alert('할일 상태 변경에 실패했습니다. 다시 시도해주세요.');
+            }
         }
     }
 
@@ -203,14 +245,30 @@ class TodoApp {
         document.getElementById('completion-rate').textContent = `${completionRate}%`;
     }
 
-    // 로컬 스토리지에서 할일 로드
-    loadTodos() {
+    // 할일 로드 (Supabase 또는 로컬 스토리지)
+    async loadTodos() {
         try {
-            const stored = localStorage.getItem('todolist-todos');
-            return stored ? JSON.parse(stored) : [];
+            // Supabase 설정이 있는지 확인
+            if (typeof SupabaseService !== 'undefined' && 
+                SUPABASE_URL !== 'YOUR_SUPABASE_URL' && 
+                SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+                
+                this.isSupabaseReady = true;
+                this.todos = await SupabaseService.getTodos();
+                console.log('Supabase에서 할일을 로드했습니다.');
+            } else {
+                // Supabase 설정이 없으면 로컬 스토리지 사용
+                this.isSupabaseReady = false;
+                const stored = localStorage.getItem('todolist-todos');
+                this.todos = stored ? JSON.parse(stored) : [];
+                console.log('로컬 스토리지에서 할일을 로드했습니다.');
+            }
         } catch (error) {
             console.error('할일 로드 중 오류 발생:', error);
-            return [];
+            // 오류 발생 시 로컬 스토리지로 폴백
+            this.isSupabaseReady = false;
+            const stored = localStorage.getItem('todolist-todos');
+            this.todos = stored ? JSON.parse(stored) : [];
         }
     }
 
@@ -348,8 +406,15 @@ function enableDragAndDrop() {
     });
 }
 
-// 앱 초기화
-const app = new TodoApp();
+// 앱 초기화 (비동기)
+let app;
+async function initializeApp() {
+    app = new TodoApp();
+    await app.init();
+}
+
+// 앱 초기화 실행
+initializeApp();
 
 // 개발자 도구용 전역 함수들
 window.todoApp = {

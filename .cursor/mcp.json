@@ -1,0 +1,35 @@
+{
+    "mcpServers": {
+      "playwright": {
+        "command": "npx",
+        "args": [
+          "@playwright/mcp@latest"
+        ]
+      },
+      "context7": {
+        "url": "https://mcp.context7.com/mcp",
+        "headers": {
+          "CONTEXT7_API_KEY": "YOUR_API_KEY"
+        }
+      }, 
+      "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+      },
+      "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--read-only",
+        "--project-ref=https://xtuaztsxifphbzsjkdbj.supabase.co"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0dWF6dHN4aWZwaGJ6c2prZGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxMTYwOTAsImV4cCI6MjA3MjY5MjA5MH0.cInDyyHsW4Z-5KV3g30IMwY4h8DBFEbQT_GpphxFd8I"
+      }
+    }
+    }
+}
