@@ -494,3 +494,113 @@ body {
 * {
   transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
+
+/* Drag and drop styles */
+.drag-over {
+  background-color: hsl(var(--accent) / 0.5);
+  border: 2px dashed hsl(var(--primary));
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Enhanced todo item hover effects */
+.todo-item:hover .btn-ghost {
+  opacity: 1;
+}
+
+.todo-item .btn-ghost {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Improved empty state */
+.empty-state {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Search highlight */
+.search-highlight {
+  background-color: hsl(var(--accent));
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+}
+
+/* Priority indicators */
+.priority-high {
+  border-left: 4px solid hsl(var(--destructive));
+}
+
+.priority-medium {
+  border-left: 4px solid hsl(var(--primary));
+}
+
+.priority-low {
+  border-left: 4px solid hsl(var(--muted-foreground));
+}
+
+/* Completion animation */
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.todo-item.completed .checkbox:checked {
+  animation: checkmark 0.3s ease-in-out;
+}
+
+/* Stats animation */
+.stat-number {
+  transition: all 0.3s ease-in-out;
+}
+
+.stat-number.updated {
+  transform: scale(1.1);
+  color: hsl(var(--primary));
+}
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+  .todo-item {
+    padding: 1rem 0.75rem;
+  }
+  
+  .todo-item:hover {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .btn-ghost {
+    opacity: 1;
+  }
+}
+
+/* Dark mode improvements */
+@media (prefers-color-scheme: dark) {
+  .search-highlight {
+    background-color: hsl(var(--accent) / 0.3);
+  }
+}
