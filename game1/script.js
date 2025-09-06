@@ -38,6 +38,7 @@ class Game {
         this.createStars();
         this.createPlayer();
         this.updateUI();
+        this.draw(); // 초기 화면 그리기
     }
     
     setupEventListeners() {
@@ -87,10 +88,17 @@ class Game {
     }
     
     startGame() {
-        if (this.gameState === 'ready' || this.gameState === 'gameOver') {
-            this.gameState = 'playing';
-            this.resetGame();
-            this.gameLoop();
+        console.log('게임 시작 버튼 클릭됨, 현재 상태:', this.gameState);
+        if (this.gameState === 'ready' || this.gameState === 'gameOver' || this.gameState === 'paused') {
+            if (this.gameState === 'paused') {
+                this.gameState = 'playing';
+                this.gameLoop();
+            } else {
+                this.resetGame();
+                this.gameState = 'playing';
+                this.gameLoop();
+            }
+            console.log('게임 시작됨, 새 상태:', this.gameState);
         }
     }
     
@@ -105,7 +113,6 @@ class Game {
     }
     
     resetGame() {
-        this.gameState = 'ready';
         this.score = 0;
         this.level = 1;
         this.lives = 3;
@@ -121,7 +128,10 @@ class Game {
     }
     
     gameLoop(currentTime = 0) {
-        if (this.gameState !== 'playing') return;
+        if (this.gameState !== 'playing') {
+            console.log('게임 루프 중단됨, 상태:', this.gameState);
+            return;
+        }
         
         const deltaTime = currentTime - this.lastTime;
         this.lastTime = currentTime;
@@ -372,6 +382,13 @@ class Game {
             this.ctx.font = '48px Arial';
             this.ctx.textAlign = 'center';
             this.ctx.fillText('일시정지', this.width / 2, this.height / 2);
+        } else if (this.gameState === 'ready') {
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            this.ctx.fillRect(0, 0, this.width, this.height);
+            this.ctx.fillStyle = '#00ffff';
+            this.ctx.font = '32px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('게임 시작 버튼을 누르세요', this.width / 2, this.height / 2);
         }
     }
     
