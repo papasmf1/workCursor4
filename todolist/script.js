@@ -131,22 +131,26 @@ class TodoApp {
     // 빈 상태 렌더링
     renderEmptyState(container) {
         let message = '';
+        let emoji = '📝';
         switch (this.currentFilter) {
             case 'active':
                 message = '미완료된 할일이 없습니다.';
+                emoji = '✅';
                 break;
             case 'completed':
                 message = '완료된 할일이 없습니다.';
+                emoji = '🎯';
                 break;
             default:
                 message = '아직 할일이 없습니다.<br>새로운 할일을 추가해보세요!';
+                emoji = '✨';
         }
 
         container.innerHTML = `
-            <div class="empty-state">
-                <div class="text-6xl mb-4">📝</div>
-                <h3 class="text-lg font-semibold mb-2">${this.currentFilter === 'all' ? '할일이 없습니다' : '해당하는 할일이 없습니다'}</h3>
-                <p class="text-muted-foreground">${message}</p>
+            <div class="empty-state text-center py-12">
+                <div class="text-6xl mb-4 floating">${emoji}</div>
+                <h3 class="text-lg font-semibold mb-2 text-gray-700">${this.currentFilter === 'all' ? '할일이 없습니다' : '해당하는 할일이 없습니다'}</h3>
+                <p class="text-gray-500">${message}</p>
             </div>
         `;
     }
@@ -169,6 +173,9 @@ class TodoApp {
         if (todo.completed) {
             todoItem.classList.add('completed');
         }
+        
+        // 그룹 호버 효과를 위한 클래스 추가
+        todoItem.classList.add('group');
 
         // 이벤트 리스너 추가
         checkbox.addEventListener('change', () => {
@@ -181,10 +188,10 @@ class TodoApp {
 
         // 애니메이션 추가
         todoItem.style.opacity = '0';
-        todoItem.style.transform = 'translateY(-10px)';
+        todoItem.style.transform = 'translateY(20px)';
         
         setTimeout(() => {
-            todoItem.style.transition = 'all 0.2s ease-out';
+            todoItem.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
             todoItem.style.opacity = '1';
             todoItem.style.transform = 'translateY(0)';
         }, 10);
@@ -198,9 +205,19 @@ class TodoApp {
         const completedTodos = this.todos.filter(todo => todo.completed).length;
         const completionRate = totalTodos > 0 ? Math.round((completedTodos / totalTodos) * 100) : 0;
 
-        document.getElementById('total-todos').textContent = totalTodos;
-        document.getElementById('completed-todos').textContent = completedTodos;
-        document.getElementById('completion-rate').textContent = `${completionRate}%`;
+        const totalElement = document.getElementById('total-todos');
+        const completedElement = document.getElementById('completed-todos');
+        const rateElement = document.getElementById('completion-rate');
+
+        // 애니메이션 효과 추가
+        [totalElement, completedElement, rateElement].forEach(el => {
+            el.classList.add('updated');
+            setTimeout(() => el.classList.remove('updated'), 600);
+        });
+
+        totalElement.textContent = totalTodos;
+        completedElement.textContent = completedTodos;
+        rateElement.textContent = `${completionRate}%`;
     }
 
     // 로컬 스토리지에서 할일 로드
