@@ -18,6 +18,11 @@ class TodoApp {
         const todoInput = document.getElementById('todo-input');
         const addBtn = document.getElementById('add-btn');
         const filterBtns = document.querySelectorAll('.filter-btn');
+        const searchInput = document.getElementById('search-input');
+        const clearCompletedBtn = document.getElementById('clear-completed');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importInput = document.getElementById('import-input');
 
         // 할일 추가 이벤트
         todoInput.addEventListener('input', (e) => {
@@ -40,11 +45,34 @@ class TodoApp {
                 this.setFilter(e.target.dataset.filter);
             });
         });
+
+        // 검색 이벤트
+        searchInput.addEventListener('input', (e) => {
+            this.searchTodos(e.target.value);
+        });
+
+        // 일괄 작업 이벤트
+        clearCompletedBtn.addEventListener('click', () => {
+            this.clearCompletedTodos();
+        });
+
+        exportBtn.addEventListener('click', () => {
+            this.exportTodos();
+        });
+
+        importBtn.addEventListener('click', () => {
+            importInput.click();
+        });
+
+        importInput.addEventListener('change', (e) => {
+            this.importTodos(e.target.files[0]);
+        });
     }
 
     // 할일 추가
     addTodo() {
         const input = document.getElementById('todo-input');
+        const prioritySelect = document.getElementById('priority-select');
         const text = input.value.trim();
 
         if (text === '') return;
@@ -53,12 +81,12 @@ class TodoApp {
             id: Date.now().toString(),
             text: text,
             completed: false,
+            priority: prioritySelect.value,
             createdAt: new Date().toISOString()
         };
 
         this.todos.unshift(todo);
-        this.saveTodos();
-        this.render();
+        this.sortTodos();
         this.updateStats();
 
         // 입력 필드 초기화
@@ -163,23 +191,47 @@ class TodoApp {
         const todoItem = clone.querySelector('.todo-item');
         const checkbox = clone.querySelector('.checkbox');
         const todoText = clone.querySelector('.todo-text');
-        const deleteBtn = clone.querySelector('.btn');
+        const priorityBadge = clone.querySelector('.priority-badge');
+        const createdAt = clone.querySelector('.created-at');
+        const editBtn = clone.querySelector('.edit-btn');
+        const deleteBtn = clone.querySelector('.delete-btn');
 
         // 할일 텍스트 설정
         todoText.textContent = todo.text;
+
+        // 우선순위 설정
+        const priorityConfig = {
+            high: { text: '높음', class: 'bg-red-100 text-red-700' },
+            medium: { text: '보통', class: 'bg-yellow-100 text-yellow-700' },
+            low: { text: '낮음', class: 'bg-green-100 text-green-700' }
+        };
+        
+        const priority = priorityConfig[todo.priority] || priorityConfig.medium;
+        priorityBadge.textContent = priority.text;
+        priorityBadge.className = `priority-badge px-2 py-1 rounded-full text-xs font-medium ${priority.class}`;
+
+        // 생성일 설정
+        const date = new Date(todo.createdAt);
+        createdAt.textContent = date.toLocaleDateString('ko-KR', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
 
         // 완료 상태 설정
         checkbox.checked = todo.completed;
         if (todo.completed) {
             todoItem.classList.add('completed');
         }
-        
-        // 그룹 호버 효과를 위한 클래스 추가
-        todoItem.classList.add('group');
 
         // 이벤트 리스너 추가
         checkbox.addEventListener('change', () => {
             this.toggleTodo(todo.id);
+        });
+
+        editBtn.addEventListener('click', () => {
+            this.editTodo(todo.id);
         });
 
         deleteBtn.addEventListener('click', () => {
@@ -316,6 +368,147 @@ class TodoApp {
             this.saveTodos();
             this.render();
         }
+    }
+
+    // 할일 편집
+    editTodo(id) {
+        const todo = this.todos.find(todo => todo.id === id);
+        if (!todo) return;
+
+        const newText = prompt('할일을 수정하세요:', todo.text);
+        if (newText !== null && newText.trim() !== '') {
+            todo.text = newText.trim();
+            todo.updatedAt = new Date().toISOString();
+            this.saveTodos();
+            this.render();
+            this.updateStats();
+        }
+    }
+
+    // 검색 기능
+    searchTodos(query) {
+        if (query.trim() === '') {
+            this.render();
+            return;
+        }
+
+        const filteredTodos = this.todos.filter(todo => 
+            todo.text.toLowerCase().includes(query.toLowerCase())
+        );
+
+        const container = document.querySelector('.todos-container');
+        container.innerHTML = '';
+
+        if (filteredTodos.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state text-center py-12">
+                    <div class="text-6xl mb-4">🔍</div>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">검색 결과가 없습니다</h3>
+                    <p class="text-gray-500">"${query}"와 일치하는 할일이 없습니다.</p>
+                </div>
+            `;
+            return;
+        }
+
+        filteredTodos.forEach(todo => {
+            const todoElement = this.createTodoElement(todo);
+            container.appendChild(todoElement);
+        });
+    }
+
+    // 완료된 할일 일괄 삭제
+    clearCompletedTodos() {
+        const completedCount = this.todos.filter(todo => todo.completed).length;
+        if (completedCount === 0) {
+            alert('완료된 할일이 없습니다.');
+            return;
+        }
+
+        if (confirm(`완료된 ${completedCount}개의 할일을 삭제하시겠습니까?`)) {
+            this.todos = this.todos.filter(todo => !todo.completed);
+            this.saveTodos();
+            this.render();
+            this.updateStats();
+        }
+    }
+
+    // 데이터 내보내기
+    exportTodos() {
+        const data = {
+            todos: this.todos,
+            exportDate: new Date().toISOString(),
+            version: '1.0'
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `todolist-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // 데이터 가져오기
+    importTodos(file) {
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                
+                if (data.todos && Array.isArray(data.todos)) {
+                    if (confirm(`가져올 데이터에 ${data.todos.length}개의 할일이 있습니다. 기존 데이터를 덮어쓰시겠습니까?`)) {
+                        this.todos = data.todos;
+                        this.saveTodos();
+                        this.render();
+                        this.updateStats();
+                        alert('데이터를 성공적으로 가져왔습니다.');
+                    }
+                } else {
+                    alert('올바른 형식의 파일이 아닙니다.');
+                }
+            } catch (error) {
+                alert('파일을 읽는 중 오류가 발생했습니다.');
+                console.error('Import error:', error);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // 할일 정렬 (우선순위별)
+    sortTodos() {
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        this.todos.sort((a, b) => {
+            if (a.completed !== b.completed) {
+                return a.completed ? 1 : -1; // 미완료 항목이 먼저
+            }
+            return priorityOrder[b.priority] - priorityOrder[a.priority]; // 높은 우선순위가 먼저
+        });
+        this.saveTodos();
+        this.render();
+    }
+
+    // 할일 복제
+    duplicateTodo(id) {
+        const todo = this.todos.find(todo => todo.id === id);
+        if (!todo) return;
+
+        const duplicatedTodo = {
+            ...todo,
+            id: Date.now().toString(),
+            text: `${todo.text} (복사본)`,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        this.todos.unshift(duplicatedTodo);
+        this.saveTodos();
+        this.render();
+        this.updateStats();
     }
 }
 
