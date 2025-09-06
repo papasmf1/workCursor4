@@ -1,0 +1,209 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+    color: #ffffff;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.game-header h1 {
+    font-size: 2.5em;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+    margin-bottom: 15px;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #00ffff; }
+    to { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
+}
+
+.score-board {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #00ffff;
+}
+
+.score-board > div {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #00ff00;
+}
+
+.game-area {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#gameCanvas {
+    border: 3px solid #00ffff;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #000011 0%, #000033 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.game-controls {
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.instructions {
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #333;
+}
+
+.instructions p {
+    margin: 5px 0;
+    color: #cccccc;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#startBtn {
+    background: linear-gradient(45deg, #00ff00, #00cc00);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+}
+
+#startBtn:hover {
+    background: linear-gradient(45deg, #00cc00, #009900);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 0, 0.4);
+}
+
+#pauseBtn {
+    background: linear-gradient(45deg, #ffaa00, #ff8800);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(255, 170, 0, 0.3);
+}
+
+#pauseBtn:hover {
+    background: linear-gradient(45deg, #ff8800, #ff6600);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 170, 0, 0.4);
+}
+
+#resetBtn {
+    background: linear-gradient(45deg, #ff4444, #cc0000);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+}
+
+#resetBtn:hover {
+    background: linear-gradient(45deg, #cc0000, #990000);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+}
+
+.game-over {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px solid #ff4444;
+    box-shadow: 0 0 30px rgba(255, 68, 68, 0.5);
+    z-index: 1000;
+}
+
+.game-over h2 {
+    color: #ff4444;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #ff4444;
+}
+
+.game-over p {
+    font-size: 1.5em;
+    margin-bottom: 30px;
+    color: #ffffff;
+}
+
+#restartBtn {
+    background: linear-gradient(45deg, #00ff00, #00cc00);
+    color: #000;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+}
+
+#restartBtn:hover {
+    background: linear-gradient(45deg, #00cc00, #009900);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 0, 0.4);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+    .game-header h1 {
+        font-size: 2em;
+    }
+    
+    .score-board {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    button {
+        width: 200px;
+    }
+    
+    #gameCanvas {
+        width: 100%;
+        height: auto;
+    }
+}

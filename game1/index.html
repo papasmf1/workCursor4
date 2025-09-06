@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제비우스 게임</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>제비우스 게임</h1>
+            <div class="score-board">
+                <div class="score">점수: <span id="score">0</span></div>
+                <div class="level">레벨: <span id="level">1</span></div>
+                <div class="lives">생명: <span id="lives">3</span></div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <canvas id="gameCanvas" width="400" height="600"></canvas>
+        </div>
+        
+        <div class="game-controls">
+            <div class="instructions">
+                <p>방향키로 이동, 스페이스바로 발사</p>
+                <p>적을 피하고 파괴하세요!</p>
+            </div>
+            <div class="buttons">
+                <button id="startBtn">게임 시작</button>
+                <button id="pauseBtn">일시정지</button>
+                <button id="resetBtn">리셋</button>
+            </div>
+        </div>
+        
+        <div class="game-over" id="gameOver" style="display: none;">
+            <h2>게임 오버</h2>
+            <p>최종 점수: <span id="finalScore">0</span></p>
+            <button id="restartBtn">다시 시작</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
